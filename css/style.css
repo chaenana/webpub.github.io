@@ -9,7 +9,6 @@ article,aside,footer,header,nav,main,section,summary,details,hgroup,figure,figca
 audio,canvas,video,progress{display:inline-block;vertical-align:baseline}
 button{background:none;border:0;-webkit-box-sizing:content-box;box-sizing:content-box;color:inherit;cursor:pointer;font:inherit;line-height:inherit;overflow:visible;vertical-align:inherit}
 button:disabled{cursor:default}
-a{color:#0070c9}
 a:link,a:visited{text-decoration:none}
 a:active{text-decoration:none}
 b,strong{font-weight:600}
@@ -178,7 +177,7 @@ box-sizing: border-box;
 
 
 #main .section:nth-child(2) .new{
-    margin-top: 70px;
+    margin-top: 110px;
     box-sizing: border-box;
     font-size: 30px;
 }
@@ -204,7 +203,6 @@ box-sizing: border-box;
     float: left;
     width: 20%;
     height: 100%;
-    /* border: #000 1px solid; */
     margin-top: 45px;
     text-align: center;
     line-height: 200%;
@@ -214,6 +212,11 @@ box-sizing: border-box;
     margin-left: 10px;
     
 }
+
+#main .section:nth-child(2) .new1{
+    margin-top: 50px;
+}
+
 
 
     #main .section:nth-child(2) img {
@@ -251,6 +254,7 @@ box-sizing: border-box;
         color: black;
         position: relative;
         box-sizing: border-box;
+        margin-top: -80px
         }
         
         
@@ -405,6 +409,7 @@ box-sizing: border-box;
                     color: black;
                     position: relative;
                     box-sizing: border-box;
+                    margin-top: -200px;
                     }
                 #main .section:nth-child(6) .newsss{
                         font-size: 30px;
