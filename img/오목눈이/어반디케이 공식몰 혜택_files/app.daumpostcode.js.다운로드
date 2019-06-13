@@ -1,0 +1,131 @@
+// app.daumpostcode
+(function (app, $) {
+    var $cache = {};
+    function initializeEvents() {
+
+        if (app.preferences.hasOwnProperty('enableDaumpostcode') && !app.preferences.enableDaumpostcode) {
+            return;
+        }
+
+        $cache.document = $(document);
+
+        $("body").on("click",".ship_address_valid",spiShipping);
+        $("body").on("click",".bill_address_valid",spiBilling);
+        $("body").on("click",".acc_address_valid",spiAddress);
+
+        $("input[name$='_shippingAddress_addressFields_address1']").attr('readonly', true);
+        $("input[name$='_billingAddress_addressFields_address1']").attr('readonly', true);
+        $("input[name$='_profile_address_address1']").attr('readonly', true);
+
+
+        $("input[name$='_billingAddress_addressFields_zip']").attr('readonly', true);
+        $("input[name$='_shippingAddress_addressFields_zip']").attr('readonly', true);
+        $("input[name$='_profile_address_zip']").attr('readonly', true);
+
+        // for the address forms in the account area
+        $cache.document.on('dialog.opened dialogopen', function () {
+            $("input[name$='_profile_address_zip']").attr('readonly', true);
+            $("input[name$='_profile_address_address1']").attr('readonly', true);
+        })
+        // event triggered after the address form section is updated
+        $cache.document.on("spcheckout.saveObj", function(event, data) {
+            if (data && (data.nextstep === 'methods')) {
+                $("input[name$='_shippingAddress_addressFields_zip']").attr('readonly', true);
+                $("input[name$='_billingAddress_addressFields_zip']").attr('readonly', true);
+                $("input[name$='_shippingAddress_addressFields_address1']").attr('readonly', true);
+                $("input[name$='_billingAddress_addressFields_address1']").attr('readonly', true);
+            }
+        });
+
+        function getFullAddress(data){
+            var fullAddr = '';
+            var extraAddr = '';
+
+            if (data.userSelectedType === 'R') {
+                fullAddr = data.roadAddress;
+
+                if(data.bname !== ''){
+                    extraAddr += data.bname;
+                }
+                if(data.buildingName !== ''){
+                    extraAddr += (extraAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+                }
+                fullAddr += (extraAddr !== '' ? ' '+ extraAddr : '');
+
+            } else {
+                fullAddr = data.jibunAddress;
+            }
+            fullAddr = fullAddr.replace(/[\♥/・家@!∥]+/g, " ");
+            var chineseRegex = /[\u4E00-\u9FFF\u3400-\u4DFF\uF900-\uFAFF]+/g;
+            fullAddr = fullAddr.replace(chineseRegex, " ");
+            return fullAddr.replace(/[\!@#$%^&*+=()~`]+/g, "");
+        }
+
+        /**
+         * Build the post code based on the received data
+         */
+        function getPostCode(data) {
+            return data.zonecode;
+        }
+
+         //used for shipping address , returns postcode1, postcode2, address1
+        function spiShipping() {
+
+            var searchQuery = $("input[name$='_shippingAddress_addressFields_zip']").val();
+            new daum.Postcode({
+                oncomplete: function(data) {
+                    var fullAddr = getFullAddress(data);
+
+                    $("input[name$='_shippingAddress_addressFields_zip']").val( getPostCode(data) ).trigger('change');
+                    $("input[name$='_shippingAddress_addressFields_zip']").valid();
+                    $("input[name$='_shippingAddress_addressFields_address1']").val(fullAddr);
+                    $("input[name$='_shippingAddress_addressFields_address1']").valid();
+                    $("input[name$='_shippingAddress_addressFields_city']").val(data.sigungu || data.sido);
+                    $("input[name$='_shippingAddress_addressFields_city']").valid();
+                }
+            }).open({q: searchQuery});
+        }
+
+        //used for billing address , returns postcode1, postcode2, address1
+        function spiBilling() {
+            var searchQuery = $("input[name$='_billingAddress_addressFields_zip']").val();
+            new daum.Postcode({
+                oncomplete: function(data) {
+                    var fullAddr = getFullAddress(data);
+
+                    $("input[name$='_billingAddress_addressFields_zip']").val( getPostCode(data) ).trigger('change');
+                    $("input[name$='_billingAddress_addressFields_zip']").valid();
+                    $("input[name$='_billingAddress_addressFields_address1']").val(fullAddr);
+                    $("input[name$='_billingAddress_addressFields_address1']").valid();
+                    $("input[name$='_billingAddress_addressFields_city']").val(data.sigungu || data.sido);
+                    $("input[name$='_billingAddress_addressFields_city']").valid();
+                }
+            }).open({q: searchQuery});
+        }
+
+        //used for customer address , returns postcode1, postcode2, address1
+        function spiAddress() {
+            var searchQuery = $("input[name$='_profile_address_zip']").val();
+            new daum.Postcode({
+                oncomplete: function(data) {
+                    var fullAddr = getFullAddress(data);
+
+                    $("input[name$='_profile_address_zip']").val( getPostCode(data) ).trigger('change');
+                    $("input[name$='_profile_address_zip']").valid();
+                    $("input[name$='_profile_address_address1']").val(fullAddr);
+                    $("input[name$='_profile_address_address1']").valid();
+                    $("input[name$='_profile_address_city']").val(data.sigungu || data.sido);
+                    $("input[name$='_profile_address_city']").valid();
+                }
+            }).open({q: searchQuery});
+        }
+
+    }
+
+    app.daumpostcode = {
+        init : function () {
+            initializeEvents();
+        }
+    };
+
+}(window.app = window.app || {}, jQuery));
